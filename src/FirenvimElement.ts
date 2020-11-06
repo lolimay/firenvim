@@ -200,10 +200,10 @@ export class FirenvimElement {
         this.mutationObserver.disconnect();
         this.span.parentNode.removeChild(this.span);
         this.onDetach(this.frameId);
-        setTimeout(() => {
-            console.log(elem.ownerDocument.activeElement);
-            (elem.ownerDocument.activeElement as HTMLElement).blur();
-        }, 30);
+        // setTimeout(() => {
+        //     console.log(elem.ownerDocument.activeElement);
+        //     (elem.ownerDocument.activeElement as HTMLElement).blur();
+        // }, 30);
     }
 
     focus() {
