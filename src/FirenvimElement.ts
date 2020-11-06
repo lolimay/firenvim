@@ -1,7 +1,7 @@
-import { isFirefox } from "./utils/utils";
-import { AbstractEditor } from "./editors/AbstractEditor";
-import { getEditor } from "./editors/editors";
-import { computeSelector } from "./utils/CSSUtils";
+import { AbstractEditor } from './editors/AbstractEditor';
+import { getEditor } from './editors/editors';
+import { computeSelector } from './utils/CSSUtils';
+import { isFirefox } from './utils/utils';
 
 export class FirenvimElement {
 
@@ -78,16 +78,16 @@ export class FirenvimElement {
     // constructor is that it's expensive and disruptive - getting this
     // information requires evaluating code in the page's context.
     private bufferInfo = (Promise.resolve(["", "", [1, 1], undefined]) as
-                          Promise<[string, string, [number, number], string]>);
+        Promise<[string, string, [number, number], string]>);
 
 
     // elem is the element that received the focusEvent.
     // Nvimify is the function that listens for focus events. We need to know
     // about it in order to remove it before focusing elem (otherwise we'll
     // just grab focus again).
-    constructor (elem: HTMLElement,
-                 listener: (evt: { target: EventTarget }) => Promise<void>,
-                 onDetach: (id: number) => any) {
+    constructor(elem: HTMLElement,
+        listener: (evt: { target: EventTarget }) => Promise<void>,
+        onDetach: (id: number) => any) {
         this.originalElement = elem;
         this.nvimify = listener;
         this.onDetach = onDetach;
@@ -107,7 +107,7 @@ export class FirenvimElement {
         // this.iframe.style.boxShadow = "0px 0px 1px 1px black";
     }
 
-    attachToPage (fip: Promise<number>) {
+    attachToPage(fip: Promise<number>) {
         this.frameIdPromise = fip.then((f: number) => this.frameId = f);
 
         // We don't need the iframe to be appended to the page in order to
@@ -191,16 +191,21 @@ export class FirenvimElement {
         });
     }
 
-    detachFromPage () {
+    detachFromPage() {
         const elem = this.getElement();
+
         this.resizeObserver.unobserve(elem);
         this.intersectionObserver.unobserve(elem);
         this.mutationObserver.disconnect();
         this.span.parentNode.removeChild(this.span);
         this.onDetach(this.frameId);
+        setTimeout(() => {
+            console.log(elem.ownerDocument.activeElement);
+            (elem.ownerDocument.activeElement as HTMLElement).blur();
+        }, 100);
     }
 
-    focus () {
+    focus() {
         // Some inputs try to grab the focus again after we appended the iframe
         // to the page, so we need to refocus it each time it loses focus. But
         // the user might want to stop focusing the iframe at some point, so we
@@ -236,7 +241,7 @@ export class FirenvimElement {
         refocus();
     }
 
-    focusOriginalElement (addListener: boolean) {
+    focusOriginalElement(addListener: boolean) {
         (document.activeElement as any).blur();
         this.originalElement.removeEventListener("focus", this.nvimify);
         this.originalElement.focus();
@@ -245,44 +250,44 @@ export class FirenvimElement {
         }
     }
 
-    getBufferInfo () {
+    getBufferInfo() {
         return this.bufferInfo;
     }
 
-    getEditor () {
+    getEditor() {
         return this.editor;
     }
 
-    getElement () {
+    getElement() {
         return this.editor.getElement();
     }
 
-    getIframe () {
+    getIframe() {
         return this.iframe;
     }
 
-    getPageElementContent () {
+    getPageElementContent() {
         return this.getEditor().getContent();
     }
 
-    getSelector () {
+    getSelector() {
         return computeSelector(this.getElement());
     }
 
-    getSpan () {
+    getSpan() {
         return this.span;
     }
 
-    hide () {
+    hide() {
         this.iframe.style.display = "none";
     }
 
-    isFocused () {
+    isFocused() {
         return document.activeElement === this.span
             || document.activeElement === this.iframe;
     }
 
-    prepareBufferInfo () {
+    prepareBufferInfo() {
         this.bufferInfo = new Promise(async r => r([
             document.location.href,
             this.getSelector(),
@@ -291,12 +296,12 @@ export class FirenvimElement {
         ]));
     }
 
-    pressKeys (keys: KeyboardEvent[]) {
+    pressKeys(keys: KeyboardEvent[]) {
         keys.forEach(ev => this.originalElement.dispatchEvent(ev));
         this.focus();
     }
 
-    putEditorCloseToInputOrigin () {
+    putEditorCloseToInputOrigin() {
         const rect = this.editor.getElement().getBoundingClientRect();
 
         // Save attributes
@@ -304,20 +309,20 @@ export class FirenvimElement {
         const oldPosAttrs = posAttrs.map((attr: any) => this.iframe.style[attr]);
 
         // Assign new values
-        this.iframe.style.left = `${rect.left + window.scrollX + this.relativeX}px`;
+        this.iframe.style.left = `${ rect.left + window.scrollX + this.relativeX }px`;
         this.iframe.style.position = "absolute";
-        this.iframe.style.top = `${rect.top + window.scrollY + this.relativeY}px`;
+        this.iframe.style.top = `${ rect.top + window.scrollY + this.relativeY }px`;
         // 2139999995 is hopefully higher than everything else on the page but
         // lower than Vimium's elements
         this.iframe.style.zIndex = "2139999995";
 
         // Compare, to know whether the element moved or not
         const posChanged = !!posAttrs.find((attr: any, index) =>
-                                           this.iframe.style[attr] !== oldPosAttrs[index]);
+            this.iframe.style[attr] !== oldPosAttrs[index]);
         return { posChanged, newRect: rect };
     }
 
-    putEditorCloseToInputOriginAfterResizeFromFrame () {
+    putEditorCloseToInputOriginAfterResizeFromFrame() {
         // This is a very weird, complicated and bad piece of code. All calls
         // to `resizeEditor()` have to result in a call to `resizeTo()` and
         // then `putEditorCloseToInputOrigin()` in order to make sure the
@@ -341,7 +346,7 @@ export class FirenvimElement {
     }
 
     // Resize the iframe, making sure it doesn't get larger than the window
-    resizeTo (width: number, height: number, warnIframe: boolean) {
+    resizeTo(width: number, height: number, warnIframe: boolean) {
         // If the dimensions that are asked for are too big, make them as big
         // as the window
         let cantFullyResize = false;
@@ -375,8 +380,8 @@ export class FirenvimElement {
         // Now actually set the width/height, move the editor where it is
         // supposed to be and if the new iframe can't be as big as requested,
         // warn the iframe script.
-        this.iframe.style.width = `${width}px`;
-        this.iframe.style.height = `${height}px`;
+        this.iframe.style.width = `${ width }px`;
+        this.iframe.style.height = `${ height }px`;
         if (cantFullyResize && warnIframe) {
             this.resizeReqId += 1;
             browser.runtime.sendMessage({
@@ -392,7 +397,7 @@ export class FirenvimElement {
         }
     }
 
-    sendKey (key: string) {
+    sendKey(key: string) {
         return browser.runtime.sendMessage({
             args: {
                 frameId: this.frameId,
@@ -405,27 +410,27 @@ export class FirenvimElement {
         });
     }
 
-    setPageElementContent (text: string) {
+    setPageElementContent(text: string) {
         const focused = this.isFocused();
         this.editor.setContent(text);
         [
-            new Event("keydown",     { bubbles: true }),
-            new Event("keyup",       { bubbles: true }),
-            new Event("keypress",    { bubbles: true }),
+            new Event("keydown", { bubbles: true }),
+            new Event("keyup", { bubbles: true }),
+            new Event("keypress", { bubbles: true }),
             new Event("beforeinput", { bubbles: true }),
-            new Event("input",       { bubbles: true }),
-            new Event("change",      { bubbles: true })
+            new Event("input", { bubbles: true }),
+            new Event("change", { bubbles: true })
         ].forEach(ev => this.originalElement.dispatchEvent(ev));
         if (focused) {
             this.focus();
         }
     }
 
-    setPageElementCursor (line: number, column: number) {
+    setPageElementCursor(line: number, column: number) {
         return this.editor.setCursor(line, column);
     }
 
-    show () {
+    show() {
         this.iframe.style.display = "initial";
     }
 
