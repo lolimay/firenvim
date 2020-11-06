@@ -138,8 +138,8 @@ export const isReady = new Promise((resolve, reject) => {
                     if (ignoreKeys[currentMode] !== undefined) {
                         keys = ignoreKeys[currentMode].slice();
                     }
-                    if (ignoreKeys["all"] !== undefined) {
-                        keys.push.apply(keys, ignoreKeys["all"]);
+                    if (ignoreKeys.all !== undefined) {
+                        keys.push.apply(keys, ignoreKeys.all);
                     }
                     if (!keys.includes(text)) {
                         nvim.input(text);

@@ -104,7 +104,7 @@ export class FirenvimElement {
         this.iframe.style.margin = "0px";
         this.iframe.style.border = "0px";
         // We still need a border, use a shadow for that
-        this.iframe.style.boxShadow = "0px 0px 1px 1px black";
+        // this.iframe.style.boxShadow = "0px 0px 1px 1px black";
     }
 
     attachToPage (fip: Promise<number>) {
