@@ -202,7 +202,7 @@ export class FirenvimElement {
         setTimeout(() => {
             console.log(elem.ownerDocument.activeElement);
             (elem.ownerDocument.activeElement as HTMLElement).blur();
-        }, 100);
+        }, 30);
     }
 
     focus() {
