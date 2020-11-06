@@ -309,9 +309,9 @@ export class FirenvimElement {
         const oldPosAttrs = posAttrs.map((attr: any) => this.iframe.style[attr]);
 
         // Assign new values
-        this.iframe.style.left = `${ rect.left + window.scrollX + this.relativeX }px`;
+        this.iframe.style.left = `${ rect.left + window.scrollX + this.relativeX + 1 }px`;
         this.iframe.style.position = "absolute";
-        this.iframe.style.top = `${ rect.top + window.scrollY + this.relativeY }px`;
+        this.iframe.style.top = `${ rect.top + window.scrollY + this.relativeY + 1 }px`;
         // 2139999995 is hopefully higher than everything else on the page but
         // lower than Vimium's elements
         this.iframe.style.zIndex = "2139999995";
@@ -355,7 +355,7 @@ export class FirenvimElement {
             availableWidth = document.documentElement.clientWidth;
         }
         if (width >= availableWidth) {
-            width = availableWidth - 1;
+            width = availableWidth + 12;
             cantFullyResize = true;
         }
         let availableHeight = window.innerHeight;
@@ -363,7 +363,7 @@ export class FirenvimElement {
             availableHeight = document.documentElement.clientHeight;
         }
         if (height >= availableHeight) {
-            height = availableHeight - 1;
+            height = availableHeight + 18;
             cantFullyResize = true;
         }
 
