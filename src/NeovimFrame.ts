@@ -128,7 +128,8 @@ export const isReady = new Promise((resolve, reject) => {
                         const reader = new FileReader();
                         reader.onload = async ({ target }) => {
                             if (url.includes('github.com')) {
-                                await nvim.input('![uploading image...]()<ESC>');
+                                await nvim.input('... uploading image ...  <ESC>');
+                                await nvim.command('/... uploading image ...');
                                 const link = await page.evalInPage(`new Promise(resolve => {
                                     const message = '${ url }'.replace(/https?:\\/\\/(.*\\.)?github.com\\//, '');
                                     const content = '${ target.result }'.replace('data:image/png;base64,', '');
@@ -151,9 +152,10 @@ export const isReady = new Promise((resolve, reject) => {
                                 })`);
                                 await nvim.command('let last_cursor_position = getpos(".")');
                                 await nvim.command(
-                                    `%s/!\\[uploading image...\\]()/![](${ link.replace(/\//g, '\\/') })`
+                                    `%s/... uploading image .../![](${ link.replace(/\//g, '\\/') })`
                                 );
                                 await nvim.command('call setpos(".", last_cursor_position)');
+                                await nvim.command('noh');
                             }
                         };
                         reader.readAsDataURL((item as any).getAsFile());
