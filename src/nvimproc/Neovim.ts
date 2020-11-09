@@ -1,20 +1,20 @@
-import { page } from "../page/proxy";
-import { onRedraw } from "../render/Redraw";
-import { Stdin } from "./Stdin";
-import { Stdout } from "./Stdout";
+import { page } from '../page/proxy';
+import { onRedraw } from '../render/Redraw';
+import { Stdin } from './Stdin';
+import { Stdout } from './Stdout';
 
 export async function neovim(
-        element: HTMLPreElement,
-        extCmdline: HTMLSpanElement,
-        extMessages: HTMLSpanElement,
-        { port, password }: { port: number, password: number },
-    ) {
+    element: HTMLPreElement,
+    extCmdline: HTMLSpanElement,
+    extMessages: HTMLSpanElement,
+    { port, password }: { port: number, password: number },
+) {
     let stdin: Stdin;
     let stdout: Stdout;
     const functions: any = {};
     const requests = new Map<number, { resolve: any, reject: any }>();
 
-    const socket = new WebSocket(`ws://127.0.0.1:${port}/${password}`);
+    const socket = new WebSocket(`ws://127.0.0.1:${ port }/${ password }`);
     socket.binaryType = "arraybuffer";
     socket.addEventListener("close", ((_: any) => {
         page.killEditor();
@@ -29,7 +29,7 @@ export async function neovim(
     const request = (api: string, args: any[]) => {
         return new Promise((resolve, reject) => {
             reqId += 1;
-            requests.set(reqId, {resolve, reject});
+            requests.set(reqId, { resolve, reject });
             stdin.write(reqId, api, args);
         });
     };
@@ -40,7 +40,7 @@ export async function neovim(
         const r = requests.get(id);
         if (!r) {
             // This can't happen and yet it sometimes does, possibly due to a firefox bug
-            console.error(`Received answer to ${id} but no handler found!`);
+            console.error(`Received answer to ${ id } but no handler found!`);
         } else {
             requests.delete(id);
             if (error) {
@@ -101,7 +101,7 @@ export async function neovim(
             }
             acc[name] = (...args: any[]) => request(cur.name, args);
             return acc;
-        }, {} as {[k: string]: (...args: any[]) => any}));
+        }, {} as { [k: string]: (...args: any[]) => any }));
     functions.get_current_channel = () => channel;
     return functions;
 }

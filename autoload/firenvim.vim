@@ -18,7 +18,7 @@ endfunction
 
 function! firenvim#eval_js(js, ...) abort
         let callback_name = get(a:, 1, '')
-        call rpcnotify(firenvim#get_chan(), 'firenvim_eval_js', callback_name)
+        call rpcnotify(firenvim#get_chan(), 'firenvim_eval_js', a:js, callback_name)
 endfunction
 
 " Asks the browser extension to release focus from the frame and focus the
