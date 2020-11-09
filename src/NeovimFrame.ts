@@ -1,3 +1,4 @@
+import { setSyntheticTrailingComments } from "typescript";
 import { neovim } from "./nvimproc/Neovim";
 import { page } from "./page/proxy";
 import { getGridId, getCurrentMode, onKeyPressed as rendererOnKeyPressed } from "./render/Redraw";
@@ -114,6 +115,51 @@ export const isReady = new Promise((resolve, reject) => {
                         augroup END`).split("\n").map(command => ["nvim_command", [command]]));
 
             const ignoreKeys = settings.ignoreKeys;
+            keyHandler.addEventListener("paste", (evt) => {
+              const { items, files: [type] } = (evt.clipboardData || (evt as any).originalEvent.clipboardData);
+
+                // text/plain
+                if (!type) {
+                    return;
+                }
+
+                Array.from(items).forEach(item => {
+                    if ((item as any).kind === 'file') {
+                        const reader = new FileReader();
+                        reader.onload = async ({ target }) => {
+                            if (url.includes('github.com')) {
+                                await nvim.input('![uploading image...]()<ESC>');
+                                const link = await page.evalInPage(`new Promise(resolve => {
+                                    const message = '${ url }'.replace(/https?:\\/\\/(.*\\.)?github.com\\//, '');
+                                    const content = '${ target.result }'.replace('data:image/png;base64,', '');
+                                    const filename = new Date().getTime() + '.png';
+                                    fetch('https://api.github.com/repos/lolimay/images/contents/' + filename, {
+                                        method: 'PUT',
+                                        headers: {
+                                            'Authorization': 'token ${ settings.githubToken }',
+                                            'Content-Type': 'application/json',
+                                            'Accept': 'application/json',
+                                        },
+                                        body: JSON.stringify({
+                                            message,
+                                            content
+                                        })
+                                    })
+                                    .then(res => res.json())
+                                    .then(({ content }) => content.download_url)
+                                    .then(resolve);
+                                })`);
+                                await nvim.command('let last_cursor_position = getpos(".")');
+                                await nvim.command(
+                                    `%s/!\\[uploading image...\\]()/![](${ link.replace(/\//g, '\\/') })`
+                                );
+                                await nvim.command('call setpos(".", last_cursor_position)');
+                            }
+                        };
+                        reader.readAsDataURL((item as any).getAsFile());
+                    }
+                });
+            });
             keyHandler.addEventListener("keydown", (evt) => {
                 if (evt.altKey && settings.alt === "alphanum" && !/[a-zA-Z0-9]/.test(evt.key)) {
                     return;
